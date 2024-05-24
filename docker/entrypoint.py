@@ -135,7 +135,7 @@ prompt_workflow = json.load(open('workflow.json'))
 # Get prompt from $PROMPT, falling back to "question mark floating in space" if not set
 prompt = os.environ.get("PROMPT") or "question mark floating in space"
 prompt_workflow["prompt"] = prompt
-prompt_workflow["images"] = [read_and_encode_images('/input/input_img')[0]]
+prompt_workflow["images"] = [read_and_encode_images('/input')[0]]
 # everything set, add entire workflow to queue.
 model_response = run_prompt(prompt_workflow)
 
