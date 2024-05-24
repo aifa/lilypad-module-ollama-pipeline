@@ -10,6 +10,7 @@ from urllib import request, parse
 import time
 import subprocess
 import logging
+import base64
 
 def run_ollama():
     global ollama_thread
@@ -25,6 +26,24 @@ def stop_ollama():
         # End the thread
         ollama_thread = None
 
+def fetch_file_from_ipfs(cid):
+    # IPFS gateway URL
+    url = f"https://ipfs.io/ipfs/{cid}"
+    
+    # Send GET request to fetch the file
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        return response.content
+    else:
+        raise Exception(f"Failed to fetch file from IPFS. Status code: {response.status_code}")
+
+def encode_file_base64(file_content):
+    # Encode the file content in base64
+    encoded_string = base64.b64encode(file_content.read()).decode('utf-8')
+
+    return encoded_string
+
 # Process and submit our job
 # ======================================================================
 # This function sends a prompt workflow to the specified URL
@@ -33,7 +52,7 @@ def stop_ollama():
 def run_prompt(prompt_workflow):
     p = prompt_workflow
     data = json.dumps(p).encode('utf-8')
-    req =  request.Request("http://127.0.0.1:11434/api/generate", data=data)
+    req =  request.Request("http://127.0.0.1:11434/api/generate -d", data=data)
     with request.urlopen(req) as response:
         response_data = response.read().decode('utf-8')
         result = json.loads(response_data)
@@ -104,7 +123,7 @@ prompt_workflow = json.load(open('workflow.json'))
 # Get prompt from $PROMPT, falling back to "question mark floating in space" if not set
 prompt = os.environ.get("PROMPT") or "question mark floating in space"
 prompt_workflow["prompt"] = prompt
-
+prompt_workflow["images"] = [encode_file_base64(fetch_file_from_ipfs("QmTNun11hdjvh15xd8dGR8GePuQM4FDdCBmbvbBG3RLHFT"))]
 # everything set, add entire workflow to queue.
 model_response = run_prompt(prompt_workflow)
 

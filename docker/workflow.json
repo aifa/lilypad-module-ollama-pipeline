@@ -1,5 +1,6 @@
 {
   "model": "llava",
-  "prompt": "what is in this image? https://gateway.lighthouse.storage/ipfs/QmTNun11hdjvh15xd8dGR8GePuQM4FDdCBmbvbBG3RLHFT",
+  "prompt": "what is in this picture?",
+  "images": [""],
   "stream": false
  }
