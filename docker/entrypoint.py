@@ -26,23 +26,23 @@ def stop_ollama():
         # End the thread
         ollama_thread = None
 
-def fetch_file_from_ipfs(cid):
-    # IPFS gateway URL
-    url = f"https://ipfs.io/ipfs/{cid}"
-    
-    # Send GET request to fetch the file
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        return response.content
-    else:
-        raise Exception(f"Failed to fetch file from IPFS. Status code: {response.status_code}")
+def read_and_encode_image(file_path):
+    """
+    Reads the content of a file and encodes it in Base64.
 
-def encode_file_base64(file_content):
-    # Encode the file content in base64
-    encoded_string = base64.b64encode(file_content.read()).decode('utf-8')
-
-    return encoded_string
+    :param file_path: Path to the file to be read and encoded.
+    :return: Base64 encoded string of the file's content.
+    """
+    try:
+        with open(file_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+        return encoded_string
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+        return None
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
 
 # Process and submit our job
 # ======================================================================
@@ -123,7 +123,7 @@ prompt_workflow = json.load(open('workflow.json'))
 # Get prompt from $PROMPT, falling back to "question mark floating in space" if not set
 prompt = os.environ.get("PROMPT") or "question mark floating in space"
 prompt_workflow["prompt"] = prompt
-prompt_workflow["images"] = [encode_file_base64(fetch_file_from_ipfs("QmTNun11hdjvh15xd8dGR8GePuQM4FDdCBmbvbBG3RLHFT"))]
+prompt_workflow["images"] = [read_and_encode_image('/input/input_img')]
 # everything set, add entire workflow to queue.
 model_response = run_prompt(prompt_workflow)
 

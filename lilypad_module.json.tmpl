@@ -19,7 +19,9 @@
                 "Params": {
                 "Entrypoint": null,
                 "EnvironmentVariables": [
-                    {{ if .Prompt }}"{{ subst "PROMPT=%s" .Prompt }}"{{ end }}
+                    {{ if .Prompt }}"{{ subst "PROMPT=%s" .Prompt }}"{{ end }},
+                    {{if .imgCid}}{{.imgCid}}{{else}}"CID=QmTNun11hdjvh15xd8dGR8GePuQM4FDdCBmbvbBG3RLHFT"{{end}},
+                    "INPUT_DIR=/input/"
                 ],
                 "Image": "yfantisa/ollama:llava-7b-lilypad1@sha256:54b35b75b84b57a363a68ef94831d77cfc1cfac7fee3ccdb39eedcfb58269e0d",
                 "Parameters": [
@@ -31,6 +33,14 @@
             "Network": {
                 "Type": "None"
             },
+            "inputs": [
+                {
+                    "CID": {{.imgCid}},
+                    "Name": "input_img",
+                    "StorageSource": "IPFS",
+                    "path": "/input"
+                }
+            ],
             "Outputs": [
                 {
                 "Name": "outputs",
