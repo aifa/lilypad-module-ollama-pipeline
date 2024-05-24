@@ -26,23 +26,35 @@ def stop_ollama():
         # End the thread
         ollama_thread = None
 
-def read_and_encode_image(file_path):
+def read_and_encode_images(folder_path):
     """
-    Reads the content of a file and encodes it in Base64.
+    Reads the contents of all files in a folder and encodes them in Base64.
 
-    :param file_path: Path to the file to be read and encoded.
-    :return: Base64 encoded string of the file's content.
+    :param folder_path: Path to the folder containing the files.
+    :return: A list of Base64 encoded strings of the files' contents.
     """
+    encoded_images = []
+
     try:
-        with open(file_path, "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-        return encoded_string
+        # Iterate over all files in the specified folder
+        for filename in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, filename)
+            
+            # Check if the path is a file
+            if os.path.isfile(file_path):
+                with open(file_path, "rb") as image_file:
+                    encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+                    encoded_images.append(encoded_string)
+        
+        return encoded_images
+    
     except FileNotFoundError:
-        print(f"File not found: {file_path}")
+        print(f"Folder not found: {folder_path}")
         return None
     except Exception as e:
         print(f"An error occurred: {e}")
         return None
+
 
 # Process and submit our job
 # ======================================================================
@@ -52,7 +64,7 @@ def read_and_encode_image(file_path):
 def run_prompt(prompt_workflow):
     p = prompt_workflow
     data = json.dumps(p).encode('utf-8')
-    req =  request.Request("http://127.0.0.1:11434/api/generate -d", data=data)
+    req =  request.Request("http://127.0.0.1:11434/api/generate", data=data)
     with request.urlopen(req) as response:
         response_data = response.read().decode('utf-8')
         result = json.loads(response_data)
@@ -123,7 +135,7 @@ prompt_workflow = json.load(open('workflow.json'))
 # Get prompt from $PROMPT, falling back to "question mark floating in space" if not set
 prompt = os.environ.get("PROMPT") or "question mark floating in space"
 prompt_workflow["prompt"] = prompt
-prompt_workflow["images"] = [read_and_encode_image('/input/input_img')]
+prompt_workflow["images"] = [read_and_encode_images('/input/input_img')[0]]
 # everything set, add entire workflow to queue.
 model_response = run_prompt(prompt_workflow)
 
