@@ -1,5 +1,5 @@
 {
-  "model": "llama3",
-  "prompt": "Why is the sky blue?",
+  "model": "llava",
+  "prompt": "what is in this image? https://gateway.lighthouse.storage/ipfs/QmTNun11hdjvh15xd8dGR8GePuQM4FDdCBmbvbBG3RLHFT",
   "stream": false
  }
