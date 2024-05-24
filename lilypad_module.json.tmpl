@@ -17,7 +17,6 @@
             "Docker": {},
             "EngineSpec": {
                 "Params": {
-                "Entrypoint": null,
                 "EnvironmentVariables": [
                     {{ if .Prompt }}"{{ subst "PROMPT=%s" .Prompt }}",{{ end }}
                 ],
