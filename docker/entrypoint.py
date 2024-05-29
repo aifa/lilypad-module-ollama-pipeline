@@ -42,9 +42,11 @@ def read_and_encode_images(folder_path):
             
             # Check if the path is a file
             if os.path.isfile(file_path):
-                with open(file_path, "rb") as image_file:
-                    encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-                    encoded_images.append(encoded_string)
+                # Check if the file has an image or video extension
+                if any(ext in filename.lower() for ext in ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.mp4', '.avi', '.mov']):
+                    with open(file_path, "rb") as image_file:
+                        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+                        encoded_images.append(encoded_string)
         
         return encoded_images
     
@@ -135,7 +137,13 @@ prompt_workflow = json.load(open('workflow.json'))
 # Get prompt from $PROMPT, falling back to "question mark floating in space" if not set
 prompt = os.environ.get("PROMPT") or "question mark floating in space"
 prompt_workflow["prompt"] = prompt
-prompt_workflow["images"] = [read_and_encode_images('/input')[0]]
+
+# Get the images from the input folder, and process only the first one 
+images = read_and_encode_images('/input')
+if images:
+    prompt_workflow["images"] = [images[0]]
+else:
+    prompt_workflow["images"] = []
 # everything set, add entire workflow to queue.
 model_response = run_prompt(prompt_workflow)
 
